@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "example"
+version = "0.1.0"
+description = ""
+authors = ["Oleksandr Draha <https://github.com/oleksandr-draha>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.1.0"
+black = "^24.10.0"
+isort = "^5.13.2"
+flake8 = "^7.1.1"
+requests = "^2.32.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+alice_server = "example.workers:run_alice_server"
+bob_server = "example.workers:run_bob_server"
