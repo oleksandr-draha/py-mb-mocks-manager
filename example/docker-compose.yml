@@ -1,0 +1,35 @@
+services:
+  alice:
+    container_name: alice
+    hostname: ${ALICE_HOST}
+    build: .
+    ports:
+      - "${ALICE_PORT}:${ALICE_PORT}"
+    command: >
+      bash -c " \
+         poetry install \
+         poetry run alice_server \
+      "
+    environment:
+      - ALICE_HOST=${ALICE_HOST}
+      - ALICE_PORT=${ALICE_PORT}
+      - BOB_HOST=${BOB_HOST}
+      - BOB_PORT=${BOB_PORT}
+    depends_on:
+      bob:
+        condition: service_started
+  bob:
+    container_name: bob
+    hostname: ${BOB_HOST}
+    build: .
+    ports:
+      - "${BOB_PORT}:${BOB_PORT}"
+    command: >
+      bash -c " \
+         poetry install \
+         poetry run bob_server \
+      "
+    environment:
+      - BOB_HOST=${BOB_HOST}
+      - BOB_PORT=${BOB_PORT}
+
