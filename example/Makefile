@@ -5,6 +5,10 @@ SRC_FOLDERS = example
 start:
 	$(DOCKER_COMPOSE) up
 
+.PHONY: test
+test:
+	$(DOCKER_COMPOSE) run tests && $(DOCKER_COMPOSE) stop
+
 .PHONY: lint
 lint:
 	poetry run black $(SRC_FOLDERS)

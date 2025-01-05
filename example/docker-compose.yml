@@ -33,6 +33,8 @@ services:
       - BOB_HOST=${BOB_HOST}
       - BOB_PORT=${BOB_PORT}
   tests:
+    profiles:
+      - tests
     container_name: tests
     hostname: tests
     build: .
