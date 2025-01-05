@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "example"
+name = "mountebank mocks manager example"
 version = "0.1.0"
 description = ""
 authors = ["Oleksandr Draha <https://github.com/oleksandr-draha>"]
@@ -19,8 +19,8 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-alice_server = "example.workers:run_alice_server"
-bob_server = "example.workers:run_bob_server"
+alice_server = "apps.workers:run_alice_server"
+bob_server = "apps.workers:run_bob_server"
 
 [tool.black]
 skip-string-normalization = true

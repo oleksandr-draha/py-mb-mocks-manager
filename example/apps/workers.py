@@ -1,7 +1,7 @@
 import os
 
-from example.alice.server import AliceServer
-from example.bob.server import BobServer
+from apps.alice.server import AliceServer
+from apps.bob.server import BobServer
 
 ALICE_HOST = os.getenv('ALICE_HOST', '127.0.0.1')
 ALICE_PORT = os.getenv('ALICE_PORT', '50517')
