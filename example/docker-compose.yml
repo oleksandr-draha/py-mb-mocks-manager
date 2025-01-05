@@ -32,4 +32,19 @@ services:
     environment:
       - BOB_HOST=${BOB_HOST}
       - BOB_PORT=${BOB_PORT}
+  tests:
+    container_name: tests
+    hostname: tests
+    build: .
+    command: >
+      bash -c " \ 
+         while ! nc -z ${ALICE_HOST} ${ALICE_PORT} ; do sleep 1; done && \
+         pytest .
+      "
+    environment:
+      - ALICE_HOST=${ALICE_HOST}
+      - ALICE_PORT=${ALICE_PORT}
+    depends_on:
+      alice:
+        condition: service_started
 
