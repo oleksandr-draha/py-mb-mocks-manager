@@ -11,6 +11,7 @@ black = "^24.10.0"
 isort = "^5.13.2"
 flake8 = "^7.1.1"
 requests = "^2.32.3"
+pytest = "^8.3.4"
 
 
 [build-system]
@@ -20,3 +21,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 alice_server = "example.workers:run_alice_server"
 bob_server = "example.workers:run_bob_server"
+
+[tool.black]
+skip-string-normalization = true
+include = '(\.py$)'
+target-version = ["py311"]
+line-length = 88
