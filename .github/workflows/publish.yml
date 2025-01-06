@@ -3,7 +3,6 @@ name: Release
 on:
   push:
     branches:
-      - main
       - 'release/**'
 
 permissions:
@@ -38,6 +37,12 @@ jobs:
         run: poetry config virtualenvs.create false
 
       - name: List dir
+        run: ls -ll
+
+      - name: List dir1
+        run: cd ..
+
+      - name: List dir1
         run: ls -ll
 
       - name: Install dependencies

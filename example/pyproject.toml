@@ -2,7 +2,7 @@
 name = "mountebank mocks manager example"
 version = "0.1.0"
 description = ""
-authors = ["Oleksandr Draha <https://github.com/oleksandr-draha>"]
+authors = ["Oleksandr Draha <dr.draga@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -12,6 +12,7 @@ isort = "^5.13.2"
 flake8 = "^7.1.1"
 requests = "^2.32.3"
 pytest = "^8.3.4"
+mountebank-mocks-manager = "^0.1.0"
 
 
 [build-system]
