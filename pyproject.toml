@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mountebank-mocks-manager"
+name = "mountebank_mocks_manager"
 version = "0.1.0"
 description = ""
 authors = ["Oleksandr Draha <https://github.com/oleksandr-draha>"]
