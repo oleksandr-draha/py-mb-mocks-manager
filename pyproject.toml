@@ -2,7 +2,7 @@
 name = "mountebank_mocks_manager"
 version = "0.1.0"
 description = ""
-authors = ["Oleksandr Draha <https://github.com/oleksandr-draha>"]
+authors = ["Oleksandr Draha <dr.draga@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
