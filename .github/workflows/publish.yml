@@ -40,6 +40,12 @@ jobs:
       - name: List dir
         run: ls -ll
 
+      - name: List dir1
+        run: cd ..
+
+      - name: List dir1
+        run: ls -ll
+
       - name: Install dependencies
         run: poetry install --sync --no-interaction
 
