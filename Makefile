@@ -1,5 +1,5 @@
 DOCKER_COMPOSE := $(shell command -v docker-compose >/dev/null 2>&1 && echo "docker-compose" || echo "docker compose")
-SRC_FOLDERS = mmm example
+SRC_FOLDERS = mountebank_mocks_manager example
 
 .PHONY: lint
 lint:
