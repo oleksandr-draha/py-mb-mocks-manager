@@ -119,7 +119,7 @@ class CommonProcessor:
 
 
 class DatesProcessor:
-    _MONTHS_PNR = [
+    _MONTHS = [
         "JAN",
         "FEB",
         "MAR",
@@ -140,7 +140,7 @@ class DatesProcessor:
         (re.compile(r"20[23]\d-[01]\d-[0123]\d"), "%Y-%m-%d"),
         (re.compile(r"[0-3]\d/[01]\d/20[23]\d"), "%d/%m/%Y"),
         (
-            re.compile(rf'(\d\d({"|".join(_MONTHS_PNR)})\d\d)'),
+            re.compile(rf'(\d\d({"|".join(_MONTHS)})\d\d)'),
             "%d%b%y",
         ),
     ]
@@ -167,7 +167,7 @@ class DatesProcessor:
         return body
 
     @classmethod
-    def load_dates_travel_json(cls, body):
+    def load_dates_json(cls, body):
         while (pos := body.find(cls.JSON_PATCH_NAME)) != -1:
             str_to_replace = body[pos : body.find(")", pos) + 1]
             params = str_to_replace[str_to_replace.find("(") + 1 : -1]
@@ -186,7 +186,7 @@ class DatesProcessor:
     @classmethod
     def load_dates(cls, body):
         body = cls.load_dates_str(body)
-        body = cls.load_dates_travel_json(body)
+        body = cls.load_dates_json(body)
         return body
 
     @staticmethod
