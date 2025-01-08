@@ -1,5 +1,5 @@
 DOCKER_COMPOSE := $(shell command -v docker-compose >/dev/null 2>&1 && echo "docker-compose" || echo "docker compose")
-SRC_FOLDERS = apps tests
+SRC_FOLDERS = mmm_example tests
 
 .PHONY: start
 start:

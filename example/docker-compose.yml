@@ -1,4 +1,11 @@
 services:
+  mountebank:
+    container_name: mountebank
+    hostname: ${MOUNTEBANK_HOST}
+    image: bbyars/mountebank:latest
+    command: --allowInjection
+    ports:
+      - "${MOUNTEBANK_PORT}:${MOUNTEBANK_PORT}"
   alice:
     container_name: alice
     hostname: ${ALICE_HOST}
@@ -13,7 +20,7 @@ services:
     environment:
       - ALICE_HOST=${ALICE_HOST}
       - ALICE_PORT=${ALICE_PORT}
-      - BOB_HOST=${BOB_HOST}
+      - BOB_HOST=${MOUNTEBANK_HOST}
       - BOB_PORT=${BOB_PORT}
     depends_on:
       bob:
