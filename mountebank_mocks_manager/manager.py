@@ -13,11 +13,9 @@ from pytest import FixtureRequest
 from mountebank_mocks_manager.logger import logger
 from mountebank_mocks_manager.plugins.patchers import patch_some_service
 from mountebank_mocks_manager.plugins.post_processors import PostProcessor
-from mountebank_mocks_manager.plugins.processors import (
-    CommonProcessor,
-    DatesProcessor,
-    StubsProcessor,
-)
+from mountebank_mocks_manager.plugins.processors import (CommonProcessor,
+                                                         DatesProcessor,
+                                                         StubsProcessor)
 from mountebank_mocks_manager.server import MBServer
 
 
@@ -133,7 +131,7 @@ class MocksManager:
                     imposter_stubs = json.loads(imposter_str)
                     imposters[imposter_name] = {
                         "stubs": imposter_stubs,
-                        "port": imposter.port,
+                        "port": imposter.get("port"),
                     }
                 else:
                     logger.warning(f"Unknown imposter found: {imposter_name}")
@@ -305,10 +303,10 @@ class MocksManager:
 
     def patch_imposters(self, imposters: dict):
         # Override this method to patch your imposters after they were loaded
-        return patch_some_service(imposters, "/example", 200, "example")
+        return patch_some_service(imposters, "/example", "example")
 
     def process_imposters(self, test_imposters_path: str):
-        full_imposters_path = os.path.join("self.imposters_root", test_imposters_path)
+        full_imposters_path = os.path.join(self.imposters_root, test_imposters_path)
         raw_imposters_path = os.path.join(full_imposters_path, "_raw")
 
         recorded_imposters = self.mountebank_server.all_imposters_details()
