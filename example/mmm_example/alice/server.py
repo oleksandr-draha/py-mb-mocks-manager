@@ -1,6 +1,7 @@
 import requests
-from apps.utils import http
 from flask import Flask
+
+from mmm_example.utils import http
 
 
 class AliceServer(Flask):

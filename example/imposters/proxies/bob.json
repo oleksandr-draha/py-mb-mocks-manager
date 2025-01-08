@@ -1,0 +1,23 @@
+[
+  {
+    "responses": [
+      {
+        "proxy": {
+          "to": "http://bob:50518/",
+          "mode": "proxyAlways",
+          "predicateGenerators": [
+            {
+              "matches": {
+                "body": true,
+                "method": true,
+                "path": true,
+                "query": true
+              },
+              "caseSensitive": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
