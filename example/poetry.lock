@@ -602,13 +602,13 @@ files = [
 
 [[package]]
 name = "mountebank-mocks-manager"
-version = "0.1.2"
+version = "0.1.4"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "mountebank_mocks_manager-0.1.2-py3-none-any.whl", hash = "sha256:81ae141bcf747385078e46b78c0e5896aa06130f632e8f1d3a836e898dfa5430"},
-    {file = "mountebank_mocks_manager-0.1.2.tar.gz", hash = "sha256:b2557de79c309f9321865f9327e421cb8023c3666037fc5277a4b376978ff9c7"},
+    {file = "mountebank_mocks_manager-0.1.4-py3-none-any.whl", hash = "sha256:83a7eee18d24d6690c1ac0584e4595a1cf85e6a66def7f2f9ed9d8971dd484cb"},
+    {file = "mountebank_mocks_manager-0.1.4.tar.gz", hash = "sha256:6ba9721ceb6f8e07249cbdb80e1634a39f3edf3e4b452693de7023b2e1b2b459"},
 ]
 
 [package.dependencies]
@@ -868,4 +868,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "85afa44577b0bacc7fcd9f23e2581f75bd0602bbdd5c75902c955ea3c3937f17"
+content-hash = "4a385554f5d6876cc83427c22f92da1b92573570f6cdf6b709980fd0e599136a"
