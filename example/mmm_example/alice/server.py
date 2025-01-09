@@ -1,6 +1,5 @@
 import requests
 from flask import Flask
-
 from mmm_example.utils import http
 
 

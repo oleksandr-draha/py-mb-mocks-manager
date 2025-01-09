@@ -22,9 +22,6 @@ from mountebank_mocks_manager.server import MBServer
 class MocksManager:
     REPLACE_DATES_IMPOSTERS = {"imposter_name"}
     RECORD_REQUESTS_IMPOSTERS = {"imposter_name"}
-    STUBS_PROCESSOR = (
-        StubsProcessor  # Write your own stubs processor to support parallel tests
-    )
 
     def __init__(
         self,
@@ -127,7 +124,7 @@ class MocksManager:
                 imposter = self.services.get(imposter_name)
                 if imposter:
                     imposter_str = full_path.read_text()
-                    imposter_str = DatesProcessor.load_dates(imposter_str)
+                    imposter_str = self.pre_load_patch_imposter(imposter_str)
                     imposter_stubs = json.loads(imposter_str)
                     imposters[imposter_name] = {
                         "stubs": imposter_stubs,
@@ -136,7 +133,7 @@ class MocksManager:
                 else:
                     logger.warning(f"Unknown imposter found: {imposter_name}")
 
-        imposters = self.patch_imposters(imposters)
+        imposters = self.post_load_patch_imposters(imposters)
 
         return imposters
 
@@ -161,9 +158,7 @@ class MocksManager:
         """
         with self.mocks_lock:
             old_stubs = self.mountebank_server.get_imposter_stubs(imposter_port)
-            new_stubs = self.STUBS_PROCESSOR.add_mock_id_predicates(
-                stubs, self.session_id
-            )
+            new_stubs = self.set_stubs_session_ids(stubs, self.session_id)
 
             if old_stubs is None:
                 self.mountebank_server.add_imposter(
@@ -195,7 +190,7 @@ class MocksManager:
         with self.mocks_lock:
 
             old_stubs = self.mountebank_server.get_imposter_stubs(imposter_port)
-            stubs_ids = StubsProcessor.get_stubs_ids_to_remove(
+            stubs_ids = self.get_stubs_ids_to_remove_by_session_id(
                 old_stubs, self.session_id
             )
 
@@ -301,9 +296,28 @@ class MocksManager:
         # Override this method to use your own rules for post-processing imposters
         return PostProcessor.process(processed_imposters)
 
-    def patch_imposters(self, imposters: dict):
+    def pre_load_patch_imposter(self, imposter_str: str):
+        # Override this method to patch your imposter before it was loaded and transformed from str to dict
+        return DatesProcessor.load_dates(imposter_str)
+
+    def post_load_patch_imposters(self, imposters: dict):
         # Override this method to patch your imposters after they were loaded
         return patch_some_service(imposters, "/example", "example")
+
+    def pre_dump_patch_stubs(self, stubs_str: str):
+        # Override this method to patch your stubs right before they were dumped in str
+        return stubs_str
+
+    def set_stubs_session_ids(self, stubs: list, session_id: str):
+        """Override this method to introduce your own patching mocks with session ids
+        to use them in parallel run"""
+        return StubsProcessor.add_mock_id_predicates(stubs, session_id)
+
+    def get_stubs_ids_to_remove_by_session_id(self, stubs: list, session_id: str):
+        """Override this method to introduce your own logic to get list
+        of stubs to remove by session ids during parallel run in unset imposters method
+        """
+        return StubsProcessor.get_stubs_ids_to_remove(stubs, session_id)
 
     def process_imposters(self, test_imposters_path: str):
         full_imposters_path = os.path.join(self.imposters_root, test_imposters_path)
@@ -322,9 +336,8 @@ class MocksManager:
             replace_dates=True,
         )
 
-    @classmethod
     def dump_imposters(
-        cls, recorded_stubs, folder_path, git_add=False, replace_dates=False
+        self, recorded_stubs, folder_path, git_add=False, replace_dates=False
     ):
         for imposter_name, stubs in recorded_stubs.items():
             if len(stubs):
@@ -335,8 +348,9 @@ class MocksManager:
                 os.makedirs(folder_path, exist_ok=True)
                 with open(filepath, "w") as imposter_file:
                     stubs_str = json.dumps(stubs, indent=2)
-                    if replace_dates and imposter_name in cls.REPLACE_DATES_IMPOSTERS:
+                    if replace_dates and imposter_name in self.REPLACE_DATES_IMPOSTERS:
                         stubs_str = DatesProcessor.replace_dates(stubs_str)
+                    stubs_str = self.pre_dump_patch_stubs(stubs_str)
                     imposter_file.write(stubs_str)
                 if git_add:
                     subprocess.run(["git", "add", filepath])
