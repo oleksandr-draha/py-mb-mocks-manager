@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mountebank_mocks_manager"
-version = "0.1.3"
+version = "0.1.4"
 description = ""
 authors = ["Oleksandr Draha <dr.draga@gmail.com>"]
 readme = "README.md"
