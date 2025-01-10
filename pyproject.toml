@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mountebank_mocks_manager"
-version = "0.1.6"
+version = "0.1.7"
 description = ""
 authors = ["Oleksandr Draha <dr.draga@gmail.com>"]
 readme = "README.md"
@@ -26,3 +26,15 @@ flakeheaven = "^3.3.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.flakeheaven]
+application-import-names = ["example", "mountebank_mocks_manager"]
+application-package-names = ["mountebank_mocks_manager"]
+import-order-style = "edited"
+max-complexity = 24
+
+[tool.flakeheaven.plugins]
+pyflakes = ["+*"]
+mccabe = ["+*"]
+pycodestyle = ["+*",  "-W503", "-E731", "-E203", "-E501"]
