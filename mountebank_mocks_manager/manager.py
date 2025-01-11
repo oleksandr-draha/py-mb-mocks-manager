@@ -2,10 +2,12 @@ import json
 import os
 import subprocess
 import time
+
 from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
+
 from filelock import FileLock
 from pathvalidate import sanitize_filename
 from pytest import FixtureRequest
@@ -13,15 +15,17 @@ from pytest import FixtureRequest
 from mountebank_mocks_manager.logger import logger
 from mountebank_mocks_manager.plugins.patchers import patch_some_service
 from mountebank_mocks_manager.plugins.post_processors import PostProcessor
-from mountebank_mocks_manager.plugins.processors import (CommonProcessor,
-                                                         DatesProcessor,
-                                                         StubsProcessor)
+from mountebank_mocks_manager.plugins.processors import (
+    CommonProcessor,
+    DatesProcessor,
+    StubsProcessor,
+)
 from mountebank_mocks_manager.server import MBServer
 
 
 class MocksManager:
-    REPLACE_DATES_IMPOSTERS = {"imposter_name"}
-    RECORD_REQUESTS_IMPOSTERS = {"imposter_name"}
+    REPLACE_DATES_IMPOSTERS = {'imposter_name'}
+    RECORD_REQUESTS_IMPOSTERS = {'imposter_name'}
 
     def __init__(
         self,
@@ -39,7 +43,7 @@ class MocksManager:
         self.session_id = session_id
         self.request = request
         self.mocks_settings = 1
-        self.imposters_root = Path(imposters_root or "")
+        self.imposters_root = Path(imposters_root or '')
         self.parallel_mode = parallel
         self.mountebank_server = MBServer(mb_server_host, mb_server_port)
 
@@ -55,7 +59,7 @@ class MocksManager:
 
         self.read_test_markers()
 
-        self.mocks_lock = FileLock(self.imposters_root / "mocks.lock")
+        self.mocks_lock = FileLock(self.imposters_root / 'mocks.lock')
 
         self.services = services
 
@@ -64,44 +68,44 @@ class MocksManager:
             # Ability to use MMM in session or isolated scope
             return
 
-        if self.request.node.get_closest_marker(name="force_proxy"):
+        if self.request.node.get_closest_marker(name='force_proxy'):
             self.proxy_enabled = True
 
-        if self.request.node.get_closest_marker(name="skip_in_proxy_mode"):
+        if self.request.node.get_closest_marker(name='skip_in_proxy_mode'):
             if self.proxy_enabled:
-                pytest.skip("Skipping in proxy mode")
+                pytest.skip('Skipping in proxy mode')
 
-        if self.request.node.get_closest_marker(name="proxy_wait"):
+        if self.request.node.get_closest_marker(name='proxy_wait'):
             self.proxy_wait = True
 
-        if marker := self.request.node.get_closest_marker(name="imposters"):
-            main_test = marker.kwargs.get("main", False)
+        if marker := self.request.node.get_closest_marker(name='imposters'):
+            main_test = marker.kwargs.get('main', False)
             if self.proxy_enabled and not main_test:
-                pytest.skip("Skipping in proxy mode")
+                pytest.skip('Skipping in proxy mode')
 
         # Extend this method to support custom pytest markers
 
     def get_test_path(self):
         if self.request is None:
-            return ""
+            return ''
 
-        if marker := self.request.node.get_closest_marker(name="imposters"):
+        if marker := self.request.node.get_closest_marker(name='imposters'):
             # Try to find imposters path in custom pytest.mark first
-            custom_imposters_path = marker.kwargs.get("path")
-            test_imposters_path = os.path.join("tests", custom_imposters_path)
+            custom_imposters_path = marker.kwargs.get('path')
+            test_imposters_path = os.path.join('tests', custom_imposters_path)
         else:
             # Construct imposters' paths for imposters for specific test
             test_full_name = self.request.node.name
-            if not self.request.node.get_closest_marker(name="parametrize"):
-                test_full_name = test_full_name.split("[")[0]
+            if not self.request.node.get_closest_marker(name='parametrize'):
+                test_full_name = test_full_name.split('[')[0]
 
             test_path = self.request.function.__module__
-            test_modules = [i.removeprefix("test_") for i in test_path.split(".")]
+            test_modules = [i.removeprefix('test_') for i in test_path.split('.')]
             test_names = [
                 sanitize_filename(i)
-                for i in test_full_name.removeprefix("test_")
-                .removesuffix("]")
-                .split("[")
+                for i in test_full_name.removeprefix('test_')
+                .removesuffix(']')
+                .split('[')
             ]
 
             test_imposters_path = os.path.join(*test_modules, *test_names)
@@ -114,24 +118,26 @@ class MocksManager:
         dir_path = Path(dir_path)
 
         if not dir_path.exists():
-            logger.warning(f"No imposters data found in {dir_path}")
+            logger.warning(f'No imposters data found in {dir_path}')
             return imposters
 
         for path in dir_path.iterdir():
             full_path = dir_path / path
-            if full_path.is_file() and full_path.suffix == ".json":
+            if full_path.is_file() and full_path.suffix == '.json':
                 imposter_name = path.stem
                 imposter = self.services.get(imposter_name)
                 if imposter:
                     imposter_str = full_path.read_text()
-                    imposter_str = self.pre_load_patch_imposter(imposter_str)
+                    imposter_str = self.pre_load_patch_imposter(
+                        imposter_name, imposter_str
+                    )
                     imposter_stubs = json.loads(imposter_str)
                     imposters[imposter_name] = {
-                        "stubs": imposter_stubs,
-                        "port": imposter.get("port"),
+                        'stubs': imposter_stubs,
+                        'port': imposter.get('port'),
                     }
                 else:
-                    logger.warning(f"Unknown imposter found: {imposter_name}")
+                    logger.warning(f'Unknown imposter found: {imposter_name}')
 
         imposters = self.post_load_patch_imposters(imposters)
 
@@ -142,10 +148,10 @@ class MocksManager:
         Used to set stubs in non-parallel mode, when only one test can be active
         """
         if self.mountebank_server.get_imposter_details(imposter_port) is not None:
-            logger.warning(f" - {imposter_name} updated")
+            logger.warning(f' - {imposter_name} updated')
             self.mountebank_server.delete_imposter(imposter_port)
         else:
-            logger.info(f" - {imposter_name} set")
+            logger.info(f' - {imposter_name} set')
         self.mountebank_server.add_imposter(
             port=imposter_port,
             name=imposter_name,
@@ -207,10 +213,10 @@ class MocksManager:
         if not full_path:
             imposters_path = os.path.join(self.imposters_root, imposters_path)
         imposters = self.get_imposters_from_path(imposters_path)
-        logger.info(f" Loading mocks from: {imposters_path}")
+        logger.info(f' Loading mocks from: {imposters_path}')
         for imposter_name, imposter_data in imposters.items():
-            imposter_port = imposter_data["port"]
-            stubs = imposter_data["stubs"]
+            imposter_port = imposter_data['port']
+            stubs = imposter_data['stubs']
             if self.proxy_enabled:
                 self.set_proxy_stubs(imposter_port, imposter_name, stubs)
             else:
@@ -220,41 +226,41 @@ class MocksManager:
         if not full:
             imposters_path = os.path.join(self.imposters_root, imposters_path)
         imposters = self.get_imposters_from_path(imposters_path)
-        logger.info(f" Unloading mocks from: {imposters_path}")
+        logger.info(f' Unloading mocks from: {imposters_path}')
         for imposter_name, imposter_data in imposters.items():
-            imposter_port = imposter_data["port"]
+            imposter_port = imposter_data['port']
             if self.proxy_enabled:
                 self.unset_proxy_stubs(imposter_port)
             else:
                 self.unset_test_stubs(imposter_port)
 
     def set_common_imposters(self):
-        self.set_imposters_from_path("common")
+        self.set_imposters_from_path('common')
 
     def unset_common_imposters(self):
-        self.unset_imposters_from_path("common")
+        self.unset_imposters_from_path('common')
 
     def set_proxy_imposters(self):
-        self.set_imposters_from_path("proxies")
+        self.set_imposters_from_path('proxies')
 
     def unset_proxy_imposters(self):
-        self.unset_imposters_from_path("proxies")
+        self.unset_imposters_from_path('proxies')
 
-    def set_test_imposters(self, group_name: str = "", test_path: str | Path = None):
+    def set_test_imposters(self, group_name: str = '', test_path: str | Path = None):
         if test_path is None:
             test_path = self.test_path
         full_imposters_path = os.path.join(test_path, group_name)
         self.set_imposters_from_path(full_imposters_path)
 
-    def unset_test_imposters(self, group_name: str = "", test_path: str | Path = None):
+    def unset_test_imposters(self, group_name: str = '', test_path: str | Path = None):
         if test_path is None:
             test_path = self.test_path
         full_imposters_path = os.path.join(test_path, group_name)
         self.unset_imposters_from_path(full_imposters_path)
 
-    def set_imposters(self, group_name: str = "", test_path: str | Path = None):
+    def set_imposters(self, group_name: str = '', test_path: str | Path = None):
         if group_name:
-            logger.info(f" Group: **{group_name}**")
+            logger.info(f' Group: **{group_name}**')
         if self.proxy_enabled:
             self.set_proxy_imposters()
         else:
@@ -263,19 +269,19 @@ class MocksManager:
 
     def unset_imposters(
         self,
-        group_name: str = "",
+        group_name: str = '',
         test_path: str | Path = None,
         wait: bool = False,
         rewrite_allowed: bool = True,
     ):
         if self.proxy_enabled and rewrite_allowed:
-            logger.info("Creating new imposters based on proxy data")
+            logger.info('Creating new imposters based on proxy data')
             if self.proxy_wait or wait:
                 logger.info(
-                    f"Sleeping {self.proxy_wait_time}s for collecting requests to mocks"
+                    f'Sleeping {self.proxy_wait_time}s for collecting requests to mocks'
                 )
                 time.sleep(self.proxy_wait_time)
-            logger.info("Generating mocks for tests")
+            logger.info('Generating mocks for tests')
             if test_path is None:
                 test_path = self.test_path
             full_imposters_path = os.path.join(test_path, group_name)
@@ -288,40 +294,9 @@ class MocksManager:
             else:
                 self.mountebank_server.delete_all_imposters()
 
-    def common_processors(self, recorded_imposters: dict):
-        # Override this method to use your own rules for processing imposters
-        return CommonProcessor.process(recorded_imposters)
-
-    def post_processors(self, processed_imposters: dict):
-        # Override this method to use your own rules for post-processing imposters
-        return PostProcessor.process(processed_imposters)
-
-    def pre_load_patch_imposter(self, imposter_str: str):
-        # Override this method to patch your imposter before it was loaded and transformed from str to dict
-        return DatesProcessor.load_dates(imposter_str)
-
-    def post_load_patch_imposters(self, imposters: dict):
-        # Override this method to patch your imposters after they were loaded
-        return patch_some_service(imposters, "/example", "example")
-
-    def pre_dump_patch_stubs(self, stubs_str: str):
-        # Override this method to patch your stubs right before they were dumped in str
-        return stubs_str
-
-    def set_stubs_session_ids(self, stubs: list, session_id: str):
-        """Override this method to introduce your own patching mocks with session ids
-        to use them in parallel run"""
-        return StubsProcessor.add_mock_id_predicates(stubs, session_id)
-
-    def get_stubs_ids_to_remove_by_session_id(self, stubs: list, session_id: str):
-        """Override this method to introduce your own logic to get list
-        of stubs to remove by session ids during parallel run in unset imposters method
-        """
-        return StubsProcessor.get_stubs_ids_to_remove(stubs, session_id)
-
     def process_imposters(self, test_imposters_path: str):
         full_imposters_path = os.path.join(self.imposters_root, test_imposters_path)
-        raw_imposters_path = os.path.join(full_imposters_path, "_raw")
+        raw_imposters_path = os.path.join(full_imposters_path, '_raw')
 
         recorded_imposters = self.mountebank_server.all_imposters_details()
         processed_imposters = self.common_processors(recorded_imposters)
@@ -333,32 +308,34 @@ class MocksManager:
             post_processed_imposters,
             full_imposters_path,
             git_add=True,
-            replace_dates=True,
+            raw=False,
         )
 
     def dump_imposters(
-        self, recorded_stubs, folder_path, git_add=False, replace_dates=False
+        self,
+        recorded_stubs: dict,
+        folder_path: str,
+        git_add: bool = False,
+        raw: bool = True,
     ):
         for imposter_name, stubs in recorded_stubs.items():
             if len(stubs):
                 if git_add:
-                    logger.info(f"Dumping {imposter_name} imposter")
-                filename = f"{imposter_name}.json"
+                    logger.info(f'Dumping {imposter_name} imposter')
+                filename = f'{imposter_name}.json'
                 filepath = os.path.join(folder_path, filename)
                 os.makedirs(folder_path, exist_ok=True)
-                with open(filepath, "w") as imposter_file:
+                with open(filepath, 'w') as imposter_file:
                     stubs_str = json.dumps(stubs, indent=2)
-                    if replace_dates and imposter_name in self.REPLACE_DATES_IMPOSTERS:
-                        stubs_str = DatesProcessor.replace_dates(stubs_str)
-                    stubs_str = self.pre_dump_patch_stubs(stubs_str)
+                    stubs_str = self.pre_dump_patch_stubs(imposter_name, stubs_str, raw)
                     imposter_file.write(stubs_str)
                 if git_add:
-                    subprocess.run(["git", "add", filepath])
+                    subprocess.run(['git', 'add', filepath])
 
     @contextmanager
     def mocks_group(
         self,
-        group_name="",
+        group_name='',
         test_path=None,
         wait=False,
         rewrite_allowed=True,
@@ -379,3 +356,38 @@ class MocksManager:
                 wait=wait,
                 rewrite_allowed=rewrite_allowed,
             )
+
+    # Methods to override
+
+    def common_processors(self, recorded_imposters: dict):
+        # Override this method to use your own rules for processing imposters
+        return CommonProcessor.process(recorded_imposters)
+
+    def post_processors(self, processed_imposters: dict):
+        # Override this method to use your own rules for post-processing imposters
+        return PostProcessor.process(processed_imposters)
+
+    def pre_load_patch_imposter(self, imposter_name: str, imposter_str: str):
+        # Override this method to patch your imposter before it was loaded and transformed from str to dict
+        if imposter_name:
+            return imposter_str
+
+    def post_load_patch_imposters(self, imposters: dict):
+        # Override this method to patch your imposters after they were loaded
+        return patch_some_service(imposters, '/example', 'example')
+
+    def pre_dump_patch_stubs(self, imposter_name: str, stubs_str: str, raw: bool):
+        # Override this method to patch your stubs right before they were dumped in str
+        if imposter_name or raw:
+            return stubs_str
+
+    def set_stubs_session_ids(self, stubs: list, session_id: str):
+        """Override this method to introduce your own patching mocks with session ids
+        to use them in parallel run"""
+        return stubs
+
+    def get_stubs_ids_to_remove_by_session_id(self, stubs: list, session_id: str):
+        """Override this method to introduce your own logic to get list
+        of stubs to remove by session ids during parallel run in unset imposters method
+        """
+        return [stubs.index(stub) for stub in stubs]

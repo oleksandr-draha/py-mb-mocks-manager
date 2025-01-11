@@ -1,4 +1,5 @@
 import json
+
 from copy import deepcopy
 
 from funcy import group_by
@@ -35,10 +36,10 @@ class PostProcessor:
         processed_stub = deepcopy(stub)
         processed_responses = list()
         last_response = dict()
-        for response in processed_stub["responses"]:
-            if last_response.get("is") == response.get("is"):
-                last_response["repeat"] = last_response.get("repeat", 1) + response.get(
-                    "repeat", 1
+        for response in processed_stub['responses']:
+            if last_response.get('is') == response.get('is'):
+                last_response['repeat'] = last_response.get('repeat', 1) + response.get(
+                    'repeat', 1
                 )
             else:
                 if last_response:
@@ -46,7 +47,7 @@ class PostProcessor:
                 last_response = deepcopy(response)
         if last_response:
             processed_responses.append(last_response)
-        processed_stub["responses"] = processed_responses
+        processed_stub['responses'] = processed_responses
         return processed_stub
 
     @staticmethod
@@ -57,20 +58,20 @@ class PostProcessor:
         # It's impossible to set infinite times for repeat,
         # So setting 999999 for the last one
         processed_stub = deepcopy(stub)
-        for response in processed_stub["responses"][:-1]:
-            response["repeat"] = 1
-        processed_stub["responses"][-1]["repeat"] = 999999
+        for response in processed_stub['responses'][:-1]:
+            response['repeat'] = 1
+        processed_stub['responses'][-1]['repeat'] = 999999
         return processed_stub
 
     @classmethod
     def process_responses(cls, stub):
         prepared_stub = cls.set_repeat_responses(stub)
-        for response in prepared_stub["responses"]:
+        for response in prepared_stub['responses']:
             for key, value in response.items():
                 if isinstance(value, dict):
-                    response[key].pop("headers", None)
-                    response[key].pop("_mode", None)
-                    response[key].pop("_proxyResponseTime", None)
+                    response[key].pop('headers', None)
+                    response[key].pop('_mode', None)
+                    response[key].pop('_proxyResponseTime', None)
         prepared_stub = cls.merge_duplicate_responses(prepared_stub)
         return prepared_stub
 
@@ -81,11 +82,11 @@ class PostProcessor:
         """
         new_stubs = list()
         for stub_group in group_by(
-            lambda item: json.dumps(item["predicates"], sort_keys=True), stubs
+            lambda item: json.dumps(item['predicates'], sort_keys=True), stubs
         ).values():
             new_stub = stub_group[0]
             for stub in stub_group[1:]:
-                new_stub["responses"] += stub["responses"]
+                new_stub['responses'] += stub['responses']
             new_stubs.append(new_stub)
         return new_stubs
 
@@ -106,9 +107,9 @@ class PostProcessor:
         processed_imposters = deepcopy(imposters)
         for name, stubs in processed_imposters.items():
             match name:
-                case "some_service":
+                case 'some_service':
                     processed_imposters[name] = process_stubs_some_service(stubs)
-                case "another_service":
+                case 'another_service':
                     processed_imposters[name] = process_stubs_another_service(stubs)
 
             processed_imposters[name] = cls.process_stubs(processed_imposters[name])

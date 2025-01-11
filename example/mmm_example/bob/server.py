@@ -8,10 +8,10 @@ class BobServer(Flask):
         self.bob_host = bob_host
         self.bob_port = bob_port
 
-        self.add_url_rule("/hello", view_func=self.hello_request, methods=["POST"])
+        self.add_url_rule('/hello', view_func=self.hello_request, methods=['POST'])
 
     def run_server(self):
         self.run(host=self.bob_host, port=self.bob_port)
 
     def hello_request(self):
-        return "world"
+        return 'world'

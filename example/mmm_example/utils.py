@@ -1,5 +1,5 @@
 def http(url: str) -> str:
-    if url.startswith("http"):
+    if url.startswith('http'):
         return url
     else:
-        return f"http://{url}"
+        return f'http://{url}'
