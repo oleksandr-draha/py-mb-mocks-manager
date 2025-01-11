@@ -9,10 +9,10 @@ python = "~3.11"
 flask = "^3.1.0"
 black = "^24.10.0"
 isort = "^5.13.2"
-flake8 = "^7.1.1"
 requests = "^2.32.3"
 pytest = "^8.3.4"
-mountebank-mocks-manager = "^0.1.4"
+flakeheaven = "^3.3.0"
+mountebank-mocks-manager = "^0.1.8"
 
 
 [build-system]
@@ -23,8 +23,38 @@ build-backend = "poetry.core.masonry.api"
 alice_server = "mmm_example.workers:run_alice_server"
 bob_server = "mmm_example.workers:run_bob_server"
 
+
+[tool.isort]
+case_sensitive = false
+combine_as_imports = true
+combine_star = true
+ensure_newline_before_comments = true
+force_grid_wrap = 0
+include_trailing_comma = true
+known_application_imports = ["config", "muninn", "tests"]
+known_first_party = ["hrafnagud"]
+line_length = 88
+lines_after_imports = 2
+lines_between_types = 1
+multi_line_output = 3
+order_by_type = false
+reverse_relative = true
+sections = ["FUTURE","STDLIB","THIRDPARTY","FIRSTPARTY","APPLICATION_IMPORTS","LOCALFOLDER"]
+use_parentheses = true
+
 [tool.black]
 skip-string-normalization = true
 include = '(\.py$)'
 target-version = ["py311"]
 line-length = 88
+
+[tool.flakeheaven]
+application-import-names = ["config", "muninn", "tests"]
+application-package-names = ["hrafnagud"]
+import-order-style = "edited"
+max-complexity = 24
+
+[tool.flakeheaven.plugins]
+pyflakes = ["+*"]
+mccabe = ["+*"]
+pycodestyle = ["+*",  "-W503", "-E731", "-E203", "-E501"]

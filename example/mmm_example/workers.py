@@ -3,10 +3,11 @@ import os
 from mmm_example.alice.server import AliceServer
 from mmm_example.bob.server import BobServer
 
-ALICE_HOST = os.getenv("ALICE_HOST", "127.0.0.1")
-ALICE_PORT = int(os.getenv("ALICE_PORT", "50517"))
-BOB_HOST = os.getenv("BOB_HOST", "127.0.0.1")
-BOB_PORT = int(os.getenv("BOB_PORT", "50518"))
+
+ALICE_HOST = os.getenv('ALICE_HOST', '127.0.0.1')
+ALICE_PORT = int(os.getenv('ALICE_PORT', '50517'))
+BOB_HOST = os.getenv('BOB_HOST', '127.0.0.1')
+BOB_PORT = int(os.getenv('BOB_PORT', '50518'))
 
 
 def run_alice_server():

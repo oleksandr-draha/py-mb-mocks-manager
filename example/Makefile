@@ -19,4 +19,4 @@ sort-imports:
 
 .PHONY: flake
 flake:
-	flake8 $(SRC_FOLDERS) --ignore=E501
+	flakeheaven lint $(SRC_FOLDERS)
